@@ -1,0 +1,97 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    background: #000;
+}
+section{
+    position: relative;
+    width: 100%;
+    height: 100vh;
+}
+section .box{
+    position: absolute;
+    top: 10%;
+    left: 40%;
+    transform: translate(50% - 50%);
+    width: 400px;
+    height: 400px;
+    transform-style: preserve-3d;
+}
+section .box div{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(25deg) translate3d(-75px,-50px,150px);
+}
+section .box div span{
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(0,0,0,.1);
+    background: #ccc;
+}
+section video{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(10px);
+}
+section .box div span video{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(0px);
+}
+
+section .box div span:nth-child(1){
+    transform: rotateX(0deg) translate3d(0,0,200px);
+}
+
+section .box div span:nth-child(2){
+    transform: rotateY(90deg) translate3d(0,0,-200px);
+}
+section .box div span:nth-child(2) video{
+    transform: rotateY(180deg);
+}
+section .box div span:nth-child(3){
+    transform: rotateX(90deg) translate3d(0,0,200px);
+}
+.top-top{
+    position: absolute;
+    top: 80%;
+    left: 40%;
+    transform: translate(50% - 50%);
+    
+}
+.top-top a{
+    padding: 15px 70px;
+    background: #a6bb5a;
+    color: #111;
+
+    text-decoration: none;
+    font-size: 20px;
+    font-family: calibri !important;
+
+    border-radius: 10px;
+    box-shadow: 2px -2px 8px #000;
+    transition: all ease 0.3s;
+}
+.top-top a:hover{
+    color: #fff;
+    background: #4b5133;
+}

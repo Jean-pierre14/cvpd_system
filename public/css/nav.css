@@ -1,0 +1,14 @@
+.nav-link:hover{
+    background-color: royalblue;
+    color: #fff;
+}
+
+.nav-brand{
+    text-decoration: none;
+    font-size: large;
+    /* color: #fff */
+}
+
+.bb_round{
+    border-radius: 5px;
+}
