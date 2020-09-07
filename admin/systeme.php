@@ -85,11 +85,11 @@
         });
         function tables(){
             let action = 'tables';
-            let table = $('#table').val()
+            
             $.ajax({
                 url: "../config/event.php",
                 method: 'post',
-                data: {action, table},
+                data: {action},
                 success: function(data){
                     $('#tables').html(data)
                 }
@@ -97,10 +97,11 @@
         }
         function getTable(){
             let action = 'getTable';
+            let table = $('#table').val()
             $.ajax({
                 url: '../config/event.php',
                 method: 'post',
-                data: {action},
+                data: {action, table},
                 success: function(data){
                     $('#getTable').html(data)
                 }

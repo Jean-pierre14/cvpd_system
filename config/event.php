@@ -372,7 +372,11 @@
 
             $sql = mysqli_query($con, "SELECT * FROM '$table'");
             if($sql){
-
+                if(mysqli_num_rows($sql) > 0){
+                    
+                }else{
+                    $output .= '<p class="alert alert-danger">Il y a un probleme</p>';
+                }
             }else{
                 $output .= '<p class="alert alert-danger">Il y a un probleme</p>';
             }
