@@ -27,7 +27,7 @@
                     <?php if(isset($_GET['select'])): ?>
                         <?php $table = $_GET['select'];?>
                         <input type="hidden" id="table" value="<?php print $table;?>" class="form-control">
-                        <h2 class="text-center"><?php print $table;?></h2>
+                        <h2 class="text-center"><span class="text-info">SELECT * FROM </span><?php print $table;?><span class="text-info">;</span></h2>
                         <div id="getTable">
                             <!-- APIs -->
                         </div>
@@ -82,6 +82,11 @@
                 })
             });
             tables();
+            getTable();
+            countPersonnelle();
+            countMale();
+            countFemale();
+            countRequest();
         });
         function tables(){
             let action = 'tables';
@@ -106,7 +111,7 @@
                     $('#getTable').html(data)
                 }
             })
-        }
+        } 
     </script>
     </body>
 </html>

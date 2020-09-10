@@ -1,7 +1,9 @@
 
 <?php
-    require_once("../config/index.php");
-    include("../includes/header.php");
+    
+    $project = "CVPD";
+    $abbreviation = "Coalition des Volontaires pour la Paix et le Developpement";
+    
     $con = mysqli_connect("localhost", "root", "", "cvpd_db") OR die("Cannot be connect to this DB");
     $output = '';
     $errors = [];
@@ -189,36 +191,124 @@
         }
         print $output;
     }
-    if(isset($_POST['login'])){
-
-        $username = htmlentities(mysqli_real_escape_string($con, trim($_POST['username'])));
-        $pass = htmlentities(mysqli_real_escape_string($con, trim($_POST['password'])));
     
-        if(empty($username)){array_push($errors, "Compte est vide");}
-        if(empty($pass)){array_push($errors, "Mot de pass est vide");}
+    if(isset($_POST['log'])){
+    
+        $user = mysqli_real_escape_string($con, htmlentities(trim($_POST['username'])));
+        $pass = mysqli_real_escape_string($con, htmlentities(trim($_POST['password'])));
+    
+        if(empty($user)){array_push($errors, "Empty username or Email");}
+        if(empty($pass)){array_push($errors, "Empty Password");}
     
         if(count($errors) == 0){
-            $sql = mysqli_query($con, "SELECT * FROM `user_account` WHERE username = '$username' AND `pass` = '$pass'");
-            if(@mysqli_num_rows($sql) == 1){
+            
+            $password = md5($pass);
+            $sql = "SELECT * FROM user_account WHERE (username = '$user' OR email = '$user') AND pass = '$password'";
+            $result = mysqli_query($con, $sql);
+    
+            if(@mysqli_num_rows($result) == 1){
+    
                 session_start();
-                $_SESSION = @mysqli_fetch_array($sql, MYSQLI_ASSOC);
-                $_SESSION['Admin'] = (int)$_SESSION['Admin'];
-                
-                $url = ($_SESSION['Admin'] === 1) ? 'index.php' : './Users/';
     
-                header("Location: ". $url);
+                $_SESSION = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                $_SESSION['user_level'] = (int)$_SESSION['user_level'];
+    
+                $url = ($_SESSION['user_level'] === 1) ? './admin' : './superuser';
+                header("location: ". $url);
                 exit();
-    
-                mysqli_free_result($sql);
+                mysqli_free_result($result);
                 mysqli_close($con);
             }else{
-                array_push($errors, "Compte ou mot de pass invalide");
-            }
+                print '<p class="alert alert-danger">Username, Email or Password invalid</p>';
+            }        
         }
     }
-
     // APIs
     if(isset($_POST['action'])){
+
+        // Request
+        if($_POST['action'] == 'request'){
+            
+            $error = 0;
+            $email = htmlentities(mysqli_real_escape_string($con, trim($_POST['email'])));
+            $message = htmlentities(mysqli_real_escape_string($con, trim($_POST['message'])));
+
+            if(empty($email)){$error = 1;print "email est vide";}
+            if(empty($email)){$error = 1;print "message est vide";}
+
+            if($error == 1){print "Remplisse vont champs";}
+            else{
+                $sql = mysqli_query($con, "INSERT INTO request(email, content) VALUE('$email', '$message')");
+                if($sql){print "VOTRE REQUEST A ETAIT ENVOIE AVEX SUCCES";}
+                else{print "failed";}
+            }
+
+        
+        }
+        // Dashboard
+        if($_POST['action'] == 'count-personnelle'){
+            $sql = mysqli_query($con, "SELECT COUNT(*) AS `count` FROM user_account");
+            if(mysqli_num_rows($sql) > 0){
+                $row = mysqli_fetch_assoc($sql);
+                $output .= '
+                <span class="badge badge-sm badge-info">'.$row['count'].'</span>
+                ';
+            }else{
+                $output .= '
+                    <span class="badge badge-sm badge-dange">Zero</span>
+                ';
+            }
+            print $output;
+        }
+        if($_POST['action'] == 'count-male'){
+            $sql = mysqli_query($con, "SELECT COUNT(*) AS `count` FROM user_account WHERE sexe = 'M'");
+            if(mysqli_num_rows($sql) > 0){
+                $row = mysqli_fetch_assoc($sql);
+                $output .= '
+                <span class="badge badge-sm badge-info">'.$row['count'].'</span>
+                ';
+            }else{
+                $output .= '
+                    <span class="badge badge-sm badge-dange">Zero</span>
+                ';
+            }
+            print $output;
+        }
+        if($_POST['action'] == 'count-female'){
+            $sql = mysqli_query($con, "SELECT COUNT(*) AS `count` FROM user_account WHERE sexe = 'F'");
+            if(mysqli_num_rows($sql) > 0){
+                $row = mysqli_fetch_assoc($sql);
+                $output .= '
+                <span class="badge badge-sm badge-info">'.$row['count'].'</span>
+                ';
+            }else{
+                $output .= '
+                    <span class="badge badge-sm badge-dange">Zero</span>
+                ';
+            }
+            print $output;
+        }
+        if($_POST['action'] == 'count-request'){
+            $sql = mysqli_query($con, "SELECT COUNT(*) AS `count` FROM request");
+            if(mysqli_num_rows($sql) > 0){
+                $row = mysqli_fetch_assoc($sql);
+                if($row['count'] == 0){
+                    $output .= '
+                        <span class="badge badge-sm badge-danger">'.$row['count'].'</span>
+                    ';
+                }else{
+                    $output .= '
+                    <span class="badge badge-sm badge-warning">'.$row['count'].'</span>
+                    ';
+                }
+            }else{
+                $output .= '
+                    <span class="badge badge-sm badge-dange">Zero</span>
+                ';
+            }
+            print $output;
+        }
+
         if($_POST['action'] == 'users'){
             $sql = mysqli_query($con, "SELECT * FROM user_account ORDER BY id DESC");
             if(mysqli_num_rows($sql) > 0){
@@ -368,19 +458,57 @@
 
         // Select table
         if($_POST['action'] == 'getTable'){
-            $table = mysqli_real_escape_string($con, trim($_POST['tablw']));
+            $table = mysqli_real_escape_string($con, trim($_POST['table']));
 
-            $sql = mysqli_query($con, "SELECT * FROM '$table'");
+            $sql = mysqli_query($con, "SELECT * FROM `$table`");
             if($sql){
                 if(mysqli_num_rows($sql) > 0){
-                    
+                    $output .= '
+                    <div class="card card-body">
+                    <div class="table-responsive">
+                    <table class="table table-sm table-hover table-striped">
+                        <tbody class="">
+                    ';
+                    while($row = mysqli_fetch_assoc($sql)){
+                        $output .= '<tr class="">';
+                        foreach($row as $elements){
+                            $output.= '<td class="">'.$elements.'</td>';
+                        }
+                        $output .= '
+                            </tr>
+                        ';
+
+                    }
+                    $output .= '
+                        </tbody>
+                    </table>
+                    </div>
+                    </div>
+                    ';
                 }else{
-                    $output .= '<p class="alert alert-danger">Il y a un probleme</p>';
+                    $output .= '<p class="alert alert-danger">Il y a rien dans cette tableau </p>';
                 }
             }else{
-                $output .= '<p class="alert alert-danger">Il y a un probleme</p>';
+                $output .= '<p class="alert alert-danger">Il y a un probleme de code sql</p>';
             }
+            print $output;
         }
     }
 
-    
+    // Tasks
+    if(isset($_POST['TaskExe'])){
+        $today = date('d/'.'m/'.'Y');
+        
+        $task = htmlentities(mysqli_real_escape_string($con, trim($_POST['task'])));
+        $username = htmlentities(mysqli_real_escape_string($con, trim($_POST['username'])));
+        
+        if(empty($task)){array_push($errors, "Votre tache est vide");}
+        if(empty($username)){array_push($errors, "Votre username est vide");}
+        
+        if(count($errors) == 0){
+            $sql = mysqli_query($con, "INSERT INTO task_tbl(TaskName, Username) VALUE('".$task."', '".$username."'");
+            if($sql){array_push($success, "Operation reussi");}
+            else{$output .= '<p class="alert alert-danger">Operation reussi ' .$username.' .</p>'.$task;}
+        }
+        print $output;
+    }
