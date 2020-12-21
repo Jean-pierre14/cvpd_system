@@ -1,12 +1,14 @@
 *{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 .box{
     position: relative;
     border-radius: 20px;
     padding: 20px;
+    overflow: hidden;
 }
 .bg-image1{
     position: relative;
@@ -18,4 +20,8 @@
 .bg-light-op{
     position: relative;
     background-color: rgba(255,255,255,0.5);
+}
+.border-l{
+    border: none;
+    border-left: 5px solid blue;
 }
